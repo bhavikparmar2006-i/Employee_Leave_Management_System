@@ -1,0 +1,42 @@
+@model IEnumerable<LeaveRequest>
+@{
+    ViewData["Title"] = "My dashboard"; Employee emp = ViewBag.Employee;
+}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">EMPLOYEE SPACE</p>
+        <h1>Welcome, @emp.FullName</h1>
+        <p class="muted">@emp.Designation · @emp.Department</p>
+    </div><a class="button" asp-controller="LeaveRequests" asp-action="Apply">+ Apply for leave</a>
+</div>
+<section class="panel">
+    <div class="panel-heading">
+        <h2>My recent leave requests</h2><a asp-controller="LeaveRequests" asp-action="Index">View history →</a>
+    </div>@if(Model.Any()){
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Dates</th>
+                    <th>Applied on</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>@foreach(var l in Model){
+                <tr>
+                    <td>@l.LeaveType</td>
+                    <td>@l.StartDate.ToString("dd MMM yyyy") – @l.EndDate.ToString("dd MMM yyyy")</td>
+                    <td>@l.AppliedOn.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td><span class="badge @l.Status.ToString().ToLowerInvariant()">@l.Status</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+    }else
+{
+
+    <p class="empty">You haven't applied for leave yet.</p>
+}
+</section>

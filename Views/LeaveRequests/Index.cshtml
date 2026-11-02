@@ -1,0 +1,68 @@
+@model IEnumerable<LeaveRequest>
+@{
+    ViewData["Title"] = "Leave requests";
+}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">LEAVE MANAGEMENT</p>
+        <h1>@(User.IsInRole("Admin") ? "All leave requests" : "My leave history")</h1>
+        <p class="muted">Track request status and review leave dates.</p>
+    </div><a class="button" asp-action="Apply">+ Apply for leave</a>
+</div>
+<form method="get" class="search-form"><select name="status">
+    <option value="">All statuses</option>@foreach(var s in Enum.GetValues<LeaveStatus>()){
+    <option value="@s"
+            selected="@(ViewBag.Status?.ToString() == s.ToString())">@s</option>
+}
+</select><button class="button secondary" type="submit">Filter</button></form>
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>@if(User.IsInRole("Admin")){
+                    <th>Employee</th>
+                }
+                <th>Type</th>
+                <th>Dates</th>
+                <th>Reason</th>
+                <th>Applied</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>@foreach(var l in Model){
+            <tr>@if(User.IsInRole("Admin")){
+                <td>@l.Employee?.FullName</td>
+            }
+            <td>
+                @l.LeaveType</td>
+                <td>@l.StartDate.ToString("dd MMM yyyy") – @l.EndDate.ToString("dd MMM yyyy")</td>
+                <td class="reason">@l.Reason</td>
+                <td>@l.AppliedOn.ToLocalTime().ToString("dd MMM yyyy")</td>
+                <td><span class="badge @l.Status.ToString().ToLowerInvariant()">@l.Status</span></td>
+                <td>@if(User.IsInRole("Admin")&&l.Status==LeaveStatus.Pending){
+                    <a asp-action="Review"
+                       asp-route-id="@l.Id">Review</a>
+                }else if (l.Status == LeaveStatus.Pending)
+                {
+
+                    <form
+                        asp-action="Cancel" method="post" class="inline"><input type="hidden" name="id"
+                                                                                value="@l.Id" /><button type="submit" class="link-button danger-link">Cancel</button>
+                    </form>
+                }
+                else if (!string.IsNullOrWhiteSpace(l.AdminComment))
+                {
+
+                    <span
+                    title="@l.AdminComment">Comment</span>
+                }
+            </td>
+        </tr>
+    }
+</tbody>
+</table>
+</div>@if(!Model.Any()){
+<p class="empty">No leave requests found.</p>
+    }
+</section>

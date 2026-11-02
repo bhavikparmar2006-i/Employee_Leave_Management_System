@@ -1,0 +1,14 @@
+@model Employee
+<div asp-validation-summary="ModelOnly" class="validation"></div>
+<div class="form-grid">
+    <div class="field"><label asp-for="FullName"></label><input asp-for="FullName" /><span
+        asp-validation-for="FullName"></span></div>
+        <div class="field"><label asp-for="Email"></label><input asp-for="Email" /><span asp-validation-for="Email"></span>
+        </div>
+        <div class="field"><label asp-for="Department"></label><input asp-for="Department" /><span
+            asp-validation-for="Department"></span></div>
+            <div class="field"><label asp-for="Designation"></label><input asp-for="Designation" /><span
+                asp-validation-for="Designation"></span></div>
+                <div class="field"><label asp-for="JoiningDate"></label><input asp-for="JoiningDate" type="date" /><span
+                    asp-validation-for="JoiningDate"></span></div>
+                </div>

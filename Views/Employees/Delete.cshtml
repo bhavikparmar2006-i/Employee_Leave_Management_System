@@ -1,0 +1,11 @@
+@model Employee
+@{
+    ViewData["Title"] = "Delete employee";
+}
+<section class="panel narrow">
+    <h1>Delete employee?</h1>
+    <p>Are you sure you want to delete <strong>@Model.FullName</strong> (@Model.Email)? Employees with leave history
+        cannot be deleted.</p>
+        <form asp-action="Delete" method="post"><input type="hidden" asp-for="Id" /><button class="button danger"
+                                                                                                type="submit">Delete employee</button> <a class="button secondary" asp-action="Index">Cancel</a></form>
+        </section>

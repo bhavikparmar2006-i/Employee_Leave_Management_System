@@ -1,0 +1,16 @@
+using EmployeeLeaveManagementSystem.Data;
+using EmployeeLeaveManagementSystem.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+namespace EmployeeLeaveManagementSystem.Controllers.Api;
+[ApiController,Route("api/leaves"),Authorize]
+public class LeavesApiController(ApplicationDbContext db, Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> users) : ControllerBase
+{
+    [HttpGet] public async Task<IActionResult> GetAll(){var q=db.LeaveRequests.Include(l=>l.Employee).AsNoTracking().AsQueryable();if(!User.IsInRole("Admin")){var u=await users.GetUserAsync(User);var emp=await db.Employees.FirstOrDefaultAsync(e=>e.UserId==users.GetUserId(User)||e.Email==u!.Email);if(emp is null)return Ok(Array.Empty<object>());q=q.Where(l=>l.EmployeeId==emp.Id);}return Ok(await q.Select(l=>new {l.Id,l.EmployeeId,EmployeeName=l.Employee!.FullName,l.LeaveType,l.StartDate,l.EndDate,l.Reason,l.Status,l.AppliedOn,l.AdminComment}).ToListAsync());}
+    [HttpGet("{id:int}")] public async Task<IActionResult> Get(int id){var l=await db.LeaveRequests.Include(x=>x.Employee).AsNoTracking().FirstOrDefaultAsync(x=>x.Id==id);if(l is null)return NotFound();if(!User.IsInRole("Admin")){var u=await users.GetUserAsync(User);var emp=await db.Employees.FirstOrDefaultAsync(e=>e.UserId==users.GetUserId(User)||e.Email==u!.Email);if(emp is null||emp.Id!=l.EmployeeId)return Forbid();}return Ok(new {l.Id,l.EmployeeId,EmployeeName=l.Employee!.FullName,l.LeaveType,l.StartDate,l.EndDate,l.Reason,l.Status,l.AppliedOn,l.AdminComment});}
+    [HttpPost,Authorize(Roles="Employee,Admin")] public async Task<IActionResult> Create([FromBody] CreateLeaveDto dto){if(dto.EndDate.Date<dto.StartDate.Date||dto.StartDate.Date<DateTime.Today||string.IsNullOrWhiteSpace(dto.Reason))return BadRequest(new{message="Check the date range and reason."});var u=await users.GetUserAsync(User);var emp=await db.Employees.FirstOrDefaultAsync(e=>e.UserId==users.GetUserId(User)||e.Email==u!.Email);if(emp is null)return BadRequest(new{message="No employee profile is linked to this account."});var leave=new LeaveRequest{EmployeeId=emp.Id,LeaveType=dto.LeaveType,StartDate=dto.StartDate.Date,EndDate=dto.EndDate.Date,Reason=dto.Reason.Trim()};db.LeaveRequests.Add(leave);await db.SaveChangesAsync();return CreatedAtAction(nameof(Get),new{id=leave.Id},new{id=leave.Id,leave.Status});}
+    [HttpPost("{id:int}/decision"),Authorize(Roles="Admin")] public async Task<IActionResult> Decide(int id,[FromBody] DecisionDto dto){var leave=await db.LeaveRequests.FindAsync(id);if(leave is null)return NotFound();if(leave.Status!=LeaveStatus.Pending)return Conflict(new{message="Only pending requests can be reviewed."});if(dto.Approve){var overlap=await db.LeaveRequests.AnyAsync(l=>l.Id!=id&&l.EmployeeId==leave.EmployeeId&&l.Status==LeaveStatus.Approved&&leave.StartDate<=l.EndDate&&leave.EndDate>=l.StartDate);if(overlap)return Conflict(new{message="Overlaps an approved leave."});}leave.Status=dto.Approve?LeaveStatus.Approved:LeaveStatus.Rejected;leave.AdminComment=dto.Comment;await db.SaveChangesAsync();return Ok(new{id=leave.Id,status=leave.Status.ToString()});}
+}
+public record CreateLeaveDto(LeaveType LeaveType,DateTime StartDate,DateTime EndDate,string Reason);
+public record DecisionDto(bool Approve,string? Comment);

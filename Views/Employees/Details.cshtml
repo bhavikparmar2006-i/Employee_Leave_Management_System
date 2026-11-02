@@ -1,0 +1,24 @@
+@model Employee
+@{
+    ViewData["Title"] = "Employee details";
+}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">TEAM DIRECTORY</p>
+        <h1>@Model.FullName</h1>
+    </div><a class="button" asp-action="Edit" asp-route-id="@Model.Id">Edit employee</a>
+</div>
+<section class="panel narrow">
+    <dl class="details">
+        <dt>Email</dt>
+        <dd>@Model.Email</dd>
+        <dt>Department</dt>
+        <dd>@Model.Department</dd>
+        <dt>Designation</dt>
+        <dd>@Model.Designation</dd>
+        <dt>Joining date</dt>
+        <dd>@Model.JoiningDate.ToString("dd MMM yyyy")</dd>
+        <dt>Leave requests</dt>
+        <dd>@Model.LeaveRequests.Count</dd>
+    </dl><a asp-controller="LeaveRequests" asp-action="Index">View leave requests</a>
+</section>

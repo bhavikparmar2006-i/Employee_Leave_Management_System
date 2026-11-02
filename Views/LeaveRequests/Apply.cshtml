@@ -1,0 +1,31 @@
+@model LeaveApplyViewModel
+@{
+    ViewData["Title"] = "Apply for leave";
+}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">LEAVE MANAGEMENT</p>
+        <h1>Apply for leave</h1>
+        <p class="muted">Submit a request for your manager to review.</p>
+    </div>
+</div>
+<section class="panel narrow">
+    <form asp-action="Apply" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation"></div>
+        <div class="field"><label asp-for="LeaveType">Leave type</label><select asp-for="LeaveType"
+                                                                                asp-items="Html.GetEnumSelectList<LeaveType>()">
+            <option value="">Choose leave type</option>
+        </select><span asp-validation-for="LeaveType"></span></div>
+        <div class="form-grid">
+            <div class="field"><label asp-for="StartDate">Start date</label><input asp-for="StartDate"
+                                                                                       type="date" /><span asp-validation-for="StartDate"></span></div>
+                <div class="field"><label asp-for="EndDate">End date</label><input asp-for="EndDate" type="date" /><span
+                    asp-validation-for="EndDate"></span></div>
+                </div>
+                <div class="field"><label asp-for="Reason"></label><textarea asp-for="Reason" rows="4"
+                                                                                 placeholder="Briefly explain the reason for your leave"></textarea><span
+                    asp-validation-for="Reason"></span></div>
+                    <div class="form-actions"><button class="button" type="submit">Submit request</button><a
+                        class="button secondary" asp-action="Index">Cancel</a></div>
+                    </form>
+                </section>

@@ -1,0 +1,82 @@
+
+@model IEnumerable<Employee>
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">TEAM DIRECTORY</p>
+        <h1>Employees</h1>
+        <p class="muted">Manage employee records and departments.</p>
+    </div>
+    <a class="button" asp-action="Create">+ Add employee</a>
+</div>
+
+@if (TempData["NewEmployeeEmail"] != null)
+{
+    <section class="success-message">
+        <h3>Employee Account Created</h3>
+        <p><strong>Email:</strong> @TempData["NewEmployeeEmail"]</p>
+        <p><strong>Temporary password:</strong> @TempData["NewEmployeePassword"]</p>
+        <p>Share these login details securely with the employee.</p>
+    </section>
+}
+
+@if (TempData["Success"] != null)
+{
+    <p class="success-message">@TempData["Success"]</p>
+}
+
+@if (TempData["Error"] != null)
+{
+    <p class="error-message">@TempData["Error"]</p>
+}
+
+<form method="get" class="search-form">
+    <input name="search"
+           value="@ViewBag.Search"
+           placeholder="Search name, email or department" />
+    <button class="button secondary" type="submit">Search</button>
+</form>
+
+<section class="panel">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Joining date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td>@e.FullName</td>
+                        <td>@e.Email</td>
+                        <td>@e.Department</td>
+                        <td>@e.Designation</td>
+                        <td>@e.JoiningDate.ToString("dd MMM yyyy")</td>
+                        <td class="actions">
+                            <a asp-action="Details" asp-route-id="@e.Id">View</a>
+                            <a asp-action="Edit" asp-route-id="@e.Id">Edit</a>
+                            <a class="danger-link"
+                               asp-action="Delete"
+                               asp-route-id="@e.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="empty">No employees found.</p>
+    }
+</section>

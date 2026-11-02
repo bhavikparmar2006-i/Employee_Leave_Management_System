@@ -1,0 +1,22 @@
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+appsettings.Development.json
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+
+# Environment and secret files
+.env
+.env.*
+!.env.example
+
+# Backup archives
+*.zip

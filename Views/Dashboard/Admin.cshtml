@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Admin dashboard";
+}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">OVERVIEW</p>
+        <h1>Admin dashboard</h1>
+        <p class="muted">Manage your team and review leave requests.</p>
+    </div><a class="button" asp-controller="Employees" asp-action="Create">+ Add employee</a>
+</div>
+<section class="stats">
+    <div class="stat"><span>Total employees</span><strong>@ViewBag.TotalEmployees</strong></div>
+    <div class="stat"><span>Pending requests</span><strong>@ViewBag.Pending</strong></div>
+    <div class="stat"><span>Approved</span><strong>@ViewBag.Approved</strong></div>
+    <div class="stat"><span>Rejected</span><strong>@ViewBag.Rejected</strong></div>
+</section>
+<section class="panel">
+    <div class="panel-heading">
+        <h2>Recent leave requests</h2><a asp-controller="LeaveRequests" asp-action="Index">View all →</a>
+    </div>@if(((IEnumerable<LeaveRequest>)ViewBag.Recent).Any()){
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Leave type</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>@foreach(LeaveRequest l in ViewBag.Recent){
+                <tr>
+                    <td>@l.Employee?.FullName</td>
+                    <td>@l.LeaveType</td>
+                    <td>@l.StartDate.ToString("dd MMM yyyy") – @l.EndDate.ToString("dd MMM yyyy")</td>
+                    <td><span class="badge @l.Status.ToString().ToLowerInvariant()">@l.Status</span></td>
+                    <td>@if(l.Status==LeaveStatus.Pending){
+                        <a asp-controller="LeaveRequests" asp-action="Review"
+                           asp-route-id="@l.Id">Review</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+    }else
+{
+
+    <p class="empty">No leave requests yet.</p>
+}
+</section>
